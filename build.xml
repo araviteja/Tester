@@ -3,7 +3,7 @@
     <description> Compile, Package and Deploy testapplication</description>
     <!-- set global properties for this build -->
     <property name="src" location="./src" />
-    <property name="classes" location="./build/classes" />
+    
     <property name="deployDest" location="." />
 
     <path id="project-classpath">
@@ -14,7 +14,7 @@
     <target name="clean">
         <echo> Cleaned old class files !</echo>
         <delete>
-            <fileset dir="./build">
+            <fileset dir=".">
                 <include name="*.war" />
             </fileset>
         </delete>
@@ -38,17 +38,16 @@
         <echo> Java file compiled and copied to classes folder !</echo>
     </target>
     <target name="buildwar" description="Building War File" depends="compile">
-        <war destfile="./build/testapplication.war" webxml="./WebContent/WEB-INF/web.xml">
+        <war destfile="./testapplication.war" webxml="./WebContent/WEB-INF/web.xml">
             <fileset dir="./WebContent">
                 <include name="**/*.jsp" />
                 <include name="*/*.xml" />
                 <include name="**/*.jar" />
             </fileset>
-            <classes dir="./build/classes" />
         </war>
     </target>
     <target name="deploy" depends="buildwar,cleanDeploy">
-        <copy file="./build/testapplication.war" todir="${deployDest}" overwrite="true">
+        <copy file="./testapplication.war" todir="${deployDest}" overwrite="true">
         </copy>
     </target>
 

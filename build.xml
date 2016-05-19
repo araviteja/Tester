@@ -1,104 +1,55 @@
-<project name="Tester" basedir="." default="usage">
-   <property file="build.properties"/>
-   <property name="src.dir" value="src"/>
-   <property name="web.dir" value="war"/>
-   <property name="javadoc.dir" value="doc"/>
-	<property name="project.web.dir" value="WebContent"/>
-   <property name="build.dir" value="${web.dir}/WEB-INF/lib"/>
-   <property name="deploy.path" value="/Users/araviteja/Desktop/SonarQue/Tomcat/webapps/"/>
-   <property name="name" value="Tester"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="buildwar" default="deploy" basedir=".">
+    <description> Compile, Package and Deploy testapplication</description>
+    <!-- set global properties for this build -->
+    <property name="src" location="./src" />
+    <property name="classes" location="./build/classes" />
+    <property name="deployDest" location="." />
 
-   <path id="master-classpath">
-      <fileset dir="${web.dir}/WEB-INF/lib">
-         <include name="*.jar"/>
-      </fileset>
-   <pathelement path="${build.dir}"/>
-   </path>
-	
-	
-	<target name="build" description="Compile main source tree java files">
-	        <mkdir dir="${build.dir}"/>
-	        <javac destdir="${build.dir}" debug="true"
-	               deprecation="false" optimize="false" failonerror="true">
-	            <src path="${src.dir}"/>
-	            <classpath refid="master-classpath"/>
-	        </javac>
-		<fileset dir="${project.web.dir}">
-			  <include name="**/*.*" />
-			</fileset>
-	    </target>
+    <path id="project-classpath">
+        <!-- Libraries inside server lib folder like, Servlet, JSP -->
+        <fileset dir="/Users/araviteja/Desktop/SonarQue/Tomcat/lib" includes="*.jar" />
+    </path>
 
-   <target name="usage">
-   <echo message=""/>
-   <echo message="${name} build file"/>
-   <echo message="-----------------------------------"/>
-   <echo message=""/>
-   <echo message="Available targets are:"/>
-   <echo message=""/>
-   <echo message="deploy    --> Deploy application as directory"/>
-   <echo message="deploywar --> Deploy application as a WAR file"/>
-   <echo message=""/>
-   </target>
+    <target name="clean">
+        <echo> Cleaned old class files !</echo>
+        <delete>
+            <fileset dir="./build">
+                <include name="*.war" />
+            </fileset>
+        </delete>
+        <echo> Cleaned old war file in build folder !</echo>
+    </target>
 
-   <target name="deploy"  description="Deploy application">
-      <copy todir="${deploy.path}/${name}" 
-         preservelastmodified="true">
-         <fileset dir="${web.dir}">
-            <include name="**/*.*"/>
-         </fileset>
-      </copy>
-   </target>
+    <target name="cleanDeploy">
+        <delete>
+            <fileset dir="${deployDest}">
+                <include name="*.war" />
+                <exclude name="*/*.*" />
+            </fileset>
+        </delete>
+        <echo> Removed war files inside Server!</echo>
+        <delete dir="${deployDest}/testapplication">
+        </delete>
+        <echo> Removed Previous Deployment inside Server!</echo>
+    </target>
+    <target name="compile" depends="clean" description="compile the source ">
+        <javac includeantruntime="true" srcdir="${src}" destdir="${classes}" classpathref="project-classpath" />
+        <echo> Java file compiled and copied to classes folder !</echo>
+    </target>
+    <target name="buildwar" description="Building War File" depends="compile">
+        <war destfile="./build/testapplication.war" webxml="./WebContent/WEB-INF/web.xml">
+            <fileset dir="./WebContent">
+                <include name="**/*.jsp" />
+                <include name="*/*.xml" />
+                <include name="**/*.jar" />
+            </fileset>
+            <classes dir="./build/classes" />
+        </war>
+    </target>
+    <target name="deploy" depends="buildwar,cleanDeploy">
+        <copy file="./build/testapplication.war" todir="${deployDest}" overwrite="true">
+        </copy>
+    </target>
 
-
-   <target name="deploywar" description="Deploy application as a WAR file">
-      <war destfile="${name}.war" webxml="WebContent/WEB-INF/web.xml">
-         <fileset dir="${web.dir}">
-            <include name="**/*.*"/>
-         </fileset>
-      </war>
-      
-      <copy todir="${deploy.path}" preservelastmodified="true">
-         <fileset dir=".">
-            <include name="*.war"/>
-         </fileset>
-      </copy>
-   </target>
-    
-
-   <target name="clean" description="Clean output directories">
-      <delete>
-         <fileset dir="${build.dir}">
-            <include name="**/*.*"/>
-         </fileset>
-      </delete>
-   </target>
-	
-	<path id="catalina-ant-classpath">
-	<!-- We need the Catalina jars for Tomcat -->
-	<!--  * for other app servers - check the docs -->
-	   <fileset dir="/Users/araviteja/Desktop/SonarQue/Tomcat/lib">
-	      <include name="catalina-ant.jar"/>
-	   </fileset>
-	</path>
-<taskdef name="install" classname="org.apache.catalina.ant.DeployTask">
-	   <classpath refid="catalina-ant-classpath"/>
-	</taskdef>
-	<taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask">
-	   <classpath refid="catalina-ant-classpath"/>
-	</taskdef>
-	<taskdef name="list" classname="org.apache.catalina.ant.ListTask">
-	   <classpath refid="catalina-ant-classpath"/>
-	</taskdef>
-	<taskdef name="start" classname="org.apache.catalina.ant.StartTask">
-	   <classpath refid="catalina-ant-classpath"/>
-	</taskdef>
-	<taskdef name="stop" classname="org.apache.catalina.ant.StopTask">
-	   <classpath refid="catalina-ant-classpath"/>
-	</taskdef>
-
-	<target name="reload" description="Reload application in Tomcat">
-	   <reload url="http://localhost:8085/" username="admin"
-	      password="admin" path="/${name}"/>
-	</target>
-	</project>
-	
+</project>

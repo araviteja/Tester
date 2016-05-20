@@ -8,7 +8,7 @@
 
     <path id="project-classpath">
         <!-- Libraries inside server lib folder like, Servlet, JSP -->
-        <fileset dir="/Users/araviteja/Desktop/SonarQue/Tomcat/lib" includes="*.jar" />
+        <fileset dir="." includes="*.jar" />
     </path>
 
     <target name="clean">

@@ -20,19 +20,6 @@
         </delete>
         <echo> Cleaned old war file in build folder !</echo>
     </target>
-
-    <target name="cleanDeploy">
-        <delete>
-            <fileset dir="${deployDest}">
-                <include name="*.war" />
-                <exclude name="*/*.*" />
-            </fileset>
-        </delete>
-        <echo> Removed war files inside Server!</echo>
-        <delete dir="${deployDest}/testapplication">
-        </delete>
-        <echo> Removed Previous Deployment inside Server!</echo>
-    </target>
     <target name="compile" depends="clean" description="compile the source ">
         <javac includeantruntime="true" srcdir="${src}" destdir="." classpathref="project-classpath" />
         <echo> Java file compiled and copied to classes folder !</echo>
@@ -46,7 +33,7 @@
             </fileset>
         </war>
     </target>
-    <target name="deploy" depends="buildwar,cleanDeploy">
+    <target name="deploy" depends="buildwar">
         <copy file="./testapplication.war" todir="${deployDest}" overwrite="true">
         </copy>
     </target>
